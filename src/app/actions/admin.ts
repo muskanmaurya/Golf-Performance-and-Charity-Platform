@@ -612,37 +612,43 @@ export async function adminPublishDrawResult(input: {
   }
 
   // Insert winners into the winners table
-  if (simulation?.ok && simulation.data && Array.isArray(simulation.data.winners) && simulation.data.winners.length > 0) {
-    const winnerRecords = simulation.data.winners.map(w => ({
-      draw_id: input.drawId,
-      user_id: w.userId,
-      tier: w.matchCount,
-      match_count: w.matchCount,
-      matched_numbers: w.matchedNumbers,
-      prize_pence: w.prizePence,
-    }))
+  if (simulation?.ok && simulation.data) {
+    const { winners } = simulation.data;
+    if (Array.isArray(winners) && winners.length > 0) {
+      const winnerRecords = winners.map(w => ({
+        draw_id: input.drawId,
+        user_id: w.userId,
+        tier: w.matchCount,
+        match_count: w.matchCount,
+        matched_numbers: w.matchedNumbers,
+        prize_pence: w.prizePence,
+      }));
 
-    const { error: winnerInsertError } = await db.from('winners').insert(winnerRecords)
+      const { error: winnerInsertError } = await db.from('winners').insert(winnerRecords);
 
-    if (winnerInsertError) {
-      console.error('Failed to insert winners:', winnerInsertError)
-      // Don't block on this, but log it
+      if (winnerInsertError) {
+        console.error('Failed to insert winners:', winnerInsertError);
+        // Don't block on this, but log it
+      }
     }
   }
 
   // Send winner notification emails
-  if (simulation?.ok && simulation.data.winners.length > 0) {
-    const { data: draw } = await db.from('draws').select('draw_date').eq('id', input.drawId).single();
-    const drawDate = draw ? new Date(draw.draw_date).toLocaleDateString() : 'a recent draw';
+  if (simulation?.ok && simulation.data) {
+    const { winners } = simulation.data;
+    if (Array.isArray(winners) && winners.length > 0) {
+      const { data: draw } = await db.from('draws').select('draw_date').eq('id', input.drawId).single();
+      const drawDate = draw ? new Date(draw.draw_date).toLocaleDateString() : 'a recent draw';
 
-    for (const winner of simulation.data.winners) {
-      await sendWinnerNotificationEmail(
-        winner.userId,
-        winner.matchCount,
-        `£${(winner.prizePence / 100).toFixed(2)}`,
-        drawDate,
-        winningNumbers ?? []
-      );
+      for (const winner of winners) {
+        await sendWinnerNotificationEmail(
+          winner.userId,
+          winner.matchCount,
+          `£${(winner.prizePence / 100).toFixed(2)}`,
+          drawDate,
+          winningNumbers ?? []
+        );
+      }
     }
   }
 
