@@ -77,7 +77,7 @@ async function updateProfileRow(userId: string, payload: Record<string, unknown>
 
   let { error } = await profiles.from('profiles').update(payload).eq('id', userId)
 
-  if (error && 'display_name' in payload && isMissingColumnError(error.message, 'display_name')) {
+  if (error && isMissingColumnError(error, 'display_name')) {
     const { display_name: _removed, ...fallbackPayload } = payload
     const fallback = await profiles.from('profiles').update(fallbackPayload).eq('id', userId)
     error = fallback.error
@@ -200,7 +200,7 @@ export async function adminUpdateGolfScore(input: {
 
   let { error } = await db.from('golf_scores').update(payload).eq('id', input.scoreId)
 
-  if (error && input.playedAt && isMissingColumnError(error.message, 'played_at')) {
+  if (error && input.playedAt && isMissingColumnError(error, 'played_at')) {
     const { played_at: _removed, ...fallbackPayload } = payload
     const fallback = await db.from('golf_scores').update({ ...fallbackPayload, round_date: input.playedAt.slice(0, 10) }).eq('id', input.scoreId)
     error = fallback.error
@@ -358,7 +358,7 @@ export async function adminCreateDraw(input: {
     created_by: adminCheck.userId,
   })
 
-  if (error && isMissingColumnError(error.message, 'is_published')) {
+  if (error && isMissingColumnError(error, 'is_published')) {
     const fallback = await db.from('draws').insert({
       charity_id: input.charityId,
       title: input.title.trim(),
@@ -594,7 +594,7 @@ export async function adminPublishDrawResult(input: {
     })
     .eq('id', input.drawId)
 
-  if (error && isMissingColumnError(error.message, 'is_published')) {
+  if (error && isMissingColumnError(error, 'is_published')) {
     const fallback = await db
       .from('draws')
       .update({
