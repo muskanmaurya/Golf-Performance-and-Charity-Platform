@@ -612,7 +612,7 @@ export async function adminPublishDrawResult(input: {
   }
 
   // Insert winners into the winners table
-  if (simulation?.ok && simulation.data.winners.length > 0) {
+  if (simulation?.ok && simulation.data && simulation.data.winners.length > 0) {
     const winnerRecords = simulation.data.winners.map(w => ({
       draw_id: input.drawId,
       user_id: w.userId,
