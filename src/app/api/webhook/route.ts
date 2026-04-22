@@ -1,8 +1,7 @@
 import Stripe from 'stripe'
 import { NextResponse } from 'next/server'
-import { revalidatePath } from 'next/cache'
 import { getStripeClient } from '@/lib/stripe'
-import { getSupabaseAdminClient } from '@/lib/supabase/admin'
+import { syncStripeSubscription } from '@/lib/stripe-sync'
 
 export const runtime = 'nodejs'
 
@@ -33,28 +32,11 @@ export async function POST(request: Request) {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session
-        const userId = session.metadata?.userId
-
-        if (!userId) {
-          throw new Error('checkout.session.completed event missing metadata.userId.')
+        if (!session.id) {
+          throw new Error('checkout.session.completed event missing session id.')
         }
 
-        const supabaseAdmin = getSupabaseAdminClient()
-        const profilesTable = 'profiles' as unknown as never
-        const updatePayload = { subscription_status: 'active' } as unknown as never
-        const { error } = await (supabaseAdmin as any)
-          .from(profilesTable)
-          .update(updatePayload)
-          .eq('id', userId)
-
-        if (error) {
-          throw error
-        }
-
-        revalidatePath('/dashboard')
-        revalidatePath('/dashboard/scores')
-        revalidatePath('/dashboard/draws')
-        revalidatePath('/dashboard/charities')
+        await syncStripeSubscription({ kind: 'checkout-session', sessionId: session.id })
         break
       }
       default:

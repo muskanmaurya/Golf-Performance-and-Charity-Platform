@@ -93,6 +93,7 @@ export default function SubscriberDashboard(props: {
     typeof profile?.contribution_percent === 'number' && Number.isFinite(profile.contribution_percent)
       ? profile.contribution_percent
       : 10
+  const isAdmin = profile?.role === 'admin'
 
   const nextDrawDate = nextDraw?.draw_date ? new Date(nextDraw.draw_date) : null
   const nextDrawLabel = nextDrawDate
@@ -206,6 +207,22 @@ export default function SubscriberDashboard(props: {
           </div>
         </div>
       </motion.div>
+
+      {isAdmin && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.03 }} className="mb-6">
+          <Card className="p-5 border border-sky-500/20 bg-sky-500/5">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="text-sm font-semibold text-sky-300">Admin access enabled</div>
+                <p className="text-sm text-slate-400 mt-1">Use the admin panel to manage users, scores, charities, draws, and payout workflows.</p>
+              </div>
+              <Link href="/admin">
+                <Button variant="outline" size="sm">Open Admin Panel</Button>
+              </Link>
+            </div>
+          </Card>
+        </motion.div>
+      )}
 
       <div className="grid lg:grid-cols-3 gap-6">
         {/* Left column: score entry + performance */}

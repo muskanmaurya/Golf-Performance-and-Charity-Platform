@@ -77,7 +77,7 @@ export default function SignupPage() {
       >
         <div className="text-center mb-8">
           <Link href="/" className="inline-flex items-center gap-2.5 mb-6">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-sky-500/25">
+            <div className="w-9 h-9 rounded-xl bg-linear-to-br from-sky-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-sky-500/25">
               <Zap className="w-5 h-5 text-white" />
             </div>
             <span className="font-bold text-xl text-white">
@@ -95,7 +95,7 @@ export default function SignupPage() {
               animate={{ opacity: 1, y: 0 }}
               className="flex items-center gap-2 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm mb-5"
             >
-              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <AlertCircle className="w-4 h-4 shrink-0" />
               {error}
             </motion.div>
           )}

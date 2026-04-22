@@ -1,4 +1,4 @@
-'use server'
+       'use server'
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
@@ -21,7 +21,7 @@ function rowPlayedDate(row: { played_at?: string | null }): string {
 
 export async function addScore(
   score: number,
-  played_at: string,
+  played_at: string, 
   course_name?: string,
   notes?: string
 ): Promise<AddScoreResult> {

@@ -4,10 +4,10 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LayoutDashboard, Target, Trophy, Heart, Settings, LogOut, Zap, Menu, X, ChevronRight } from 'lucide-react'
+import { LayoutDashboard, Target, Trophy, Heart, Settings, LogOut, Zap, Menu, X, ChevronRight, Shield } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
-const navItems = [
+const baseNavItems = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Overview' },
   { href: '/dashboard/scores', icon: Target, label: 'My Scores' },
   { href: '/dashboard/draws', icon: Trophy, label: 'Prize Draws' },
@@ -15,11 +15,14 @@ const navItems = [
   { href: '/dashboard/settings', icon: Settings, label: 'Settings' },
 ]
 
-export default function Sidebar() {
+export default function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
   const pathname = usePathname()
   const router = useRouter()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [loggingOut, setLoggingOut] = useState(false)
+  const navItems = isAdmin
+    ? [...baseNavItems, { href: '/admin', icon: Shield, label: 'Admin Panel' }]
+    : baseNavItems
 
   async function handleLogout() {
     setLoggingOut(true)
@@ -32,7 +35,7 @@ export default function Sidebar() {
     <div className="flex flex-col h-full">
       <div className="p-5 border-b border-[#1e2a3a]">
         <Link href="/" className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-sky-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-sky-500/25">
+          <div className="w-8 h-8 rounded-lg bg-linear-to-br from-sky-500 to-emerald-500 flex items-center justify-center shadow-lg shadow-sky-500/25">
             <Zap className="w-4 h-4 text-white" />
           </div>
           <span className="font-bold text-base text-white">
@@ -58,7 +61,7 @@ export default function Sidebar() {
                 }
               `}
             >
-              <Icon className="w-4.5 h-4.5 flex-shrink-0" size={18} />
+              <Icon className="w-4.5 h-4.5 shrink-0" size={18} />
               {label}
               {active && (
                 <ChevronRight className="w-3.5 h-3.5 ml-auto text-sky-400/60" />
@@ -90,7 +93,7 @@ export default function Sidebar() {
       <div className="md:hidden">
         <div className="flex items-center justify-between px-4 py-3 bg-[#0a0f1a] border-b border-[#1e2a3a]">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-sky-500 to-emerald-500 flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-linear-to-br from-sky-500 to-emerald-500 flex items-center justify-center">
               <Zap className="w-3.5 h-3.5 text-white" />
             </div>
             <span className="font-bold text-sm text-white">Digital <span className="gradient-text">Heroes</span></span>

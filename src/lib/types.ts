@@ -63,8 +63,12 @@ export interface Draw {
   draw_date: string
   prize_description: string
   status: DrawStatus
+  is_published?: boolean
+  winning_numbers?: number[] | null
+  total_prize_pool_pence?: number
   winner_user_id: string | null
   winner_announced_at: string | null
+  payout_completed?: boolean
   created_by: string | null
   created_at: string
   updated_at: string

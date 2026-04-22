@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import SubscriberDashboard from '@/components/dashboard/SubscriberDashboard'
 import type { Profile } from '@/lib/types'
+import { syncStripeSubscription } from '@/lib/stripe-sync'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -72,7 +73,7 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  const [profile, scoresResult, charitiesResult, nextDrawResult, winningsResult] = await Promise.all([
+  let [profile, scoresResult, charitiesResult, nextDrawResult, winningsResult] = await Promise.all([
     fetchProfile(supabase, user.id),
     supabase
       .from('golf_scores')
@@ -93,6 +94,21 @@ export default async function DashboardPage() {
     // Prize amounts aren't stored in schema, so winnings are represented as £0 until a payout ledger exists.
     supabase.from('draws').select('id').eq('winner_user_id', user.id),
   ])
+
+  if (profile?.subscription_status !== 'active') {
+    try {
+      await syncStripeSubscription({
+        kind: 'user-lookup',
+        userId: user.id,
+        email: user.email,
+        stripeCustomerId: profile?.stripe_customer_id ?? null,
+      })
+
+      profile = await fetchProfile(supabase, user.id)
+    } catch (error) {
+      console.log('Dashboard subscription sync failed:', error)
+    }
+  }
 
   console.log('Charities data:', charitiesResult.data)
 

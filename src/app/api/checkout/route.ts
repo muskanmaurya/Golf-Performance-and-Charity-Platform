@@ -22,7 +22,7 @@ async function createCheckoutSession(request: Request, priceId: string) {
   const session = await stripe.checkout.sessions.create({
     mode: 'subscription',
     line_items: [{ price: priceId, quantity: 1 }],
-    success_url: `${origin}/dashboard?checkout=success`,
+    success_url: `${origin}/api/stripe/sync?session_id={CHECKOUT_SESSION_ID}&returnTo=/dashboard`,
     cancel_url: `${origin}/dashboard?checkout=cancelled`,
     metadata: {
       userId: user.id,
